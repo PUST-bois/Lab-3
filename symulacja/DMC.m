@@ -1,10 +1,11 @@
-classdef DMC
+classdef DMC < handle
     
     properties
         M  % dim (N*ny)x(Nu*nu)
         Mp  % dim (N*ny)x((D-1)*nu)
         K  % dim (Nu*nu)x(N*ny)
         K1 % dim nu x(N*ny)
+        dUp % dim ((D - 1)*nu) x 1
         
         D %scalar
         N %scalar
@@ -13,6 +14,8 @@ classdef DMC
     
     methods
         function obj = DMC(D, N, Nu, lambda, S_y1u1, S_y2u1, S_y1u2, S_y2u2)
+            nu = 2;
+            ny = 2;
             % constructing the S components
             S_arr = {};
             for i =1:D
@@ -63,43 +66,35 @@ classdef DMC
             obj.D = D;
             obj.N = N;
             obj.Nu = Nu;
+            
+            obj.dUp = zeros((obj.D - 1)*nu, 1);
         end
         
         
-        
-        function err = regulate(obj, sim_time, Yzad, init_controls) %Yzad = sim_time vector x ny
-            nu = 2;
-            ny = 2;
+        % measurments: transposed vector  1 x ny
+        % prev_controls: transposed vector  1 x nu
+        % Yzad: transposed vector  1 x ny
+        function [controls, err] = eval_controls(obj, measurements, prev_controls, Yzad)
+            ny=2;
+            nu=2;
             
-            err = zeros(ny,1);
+            e = measurements' - Yzad';
+            err =  e.^2;
             
-            dUp = zeros((obj.D - 1)*nu);
-            controls = init_controls;
+            % creating Y(k) and Yzad(k)
+            Y = repmat(measurements', obj.N, 1);
+            Yzad_k = repmat(Yzad', obj.N, 1);
             
-            for k = 1:sim_time
-                % reading input
-                mrm = readMeasurements([1,3]);
-                
-                e = mrm' - Yzad(k,:)';
-                err = err + e.^2;
-                
-                % creating Y(k) and Yzad(k)
-                Y = repmat(mrm', obj.N, 1);
-                Yzad_k = repmat(Yzad(k,:)', obj.N, 1);
-                
-                % evaluating delta u
-                du = obj.K1*(Yzad_k - Y - obj.Mp * dUp);
-                
-                % sending controls
-                controls = controls + du';
-                sendControls([5,6]    ,... send for these elements
-                             controls);  % new corresponding control values
-                         
-                temp = [du; dUp];
-                dUp = temp(1:(obj.D - 1)*nu);
-                
-                
-            end
+            % evaluating delta u
+            du = obj.K1*(Yzad_k - Y - obj.Mp * obj.dUp);
+            
+            % sending controls
+            controls = prev_controls + du';
+            
+            temp = [du; obj.dUp];
+            obj.dUp = temp(1:(obj.D - 1)*nu);
+            
+
         end
     end
 end
