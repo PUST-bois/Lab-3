@@ -94,6 +94,9 @@ classdef DMC
                 controls = controls + du';
                 sendControls([5,6]    ,... send for these elements
                              controls);  % new corresponding control values
+                         
+                temp = [du; dUp];
+                dUp = temp(1:(obj.D - 1)*nu);
                 
                 
             end
