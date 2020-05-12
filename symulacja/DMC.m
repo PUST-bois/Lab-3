@@ -90,6 +90,18 @@ classdef DMC < handle
             
             % sending controls
             controls = prev_controls + du';
+            % constraints
+            if controls(1) > 100
+                controls(1) = 100;
+            elseif controls(1) < 0
+                controls(1) = 0;
+            end
+            
+            if controls(2) > 100
+                controls(2) = 100;
+            elseif controls(2) < 0
+                controls(2) = 0;
+            end
             
             temp = [du; obj.dUp];
             obj.dUp = temp(1:(obj.D - 1)*nu);
