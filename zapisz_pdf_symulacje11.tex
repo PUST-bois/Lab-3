@@ -1,0 +1,69 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{pgfplots}
+\usepackage{siunitx}
+\sisetup{detect-weight,exponent-product=\cdot,output-decimal-marker={,},
+	per-mode=symbol,binary-units=true,range-phrase={-},range-units=single}
+\SendSettingsToPgf
+\usetikzlibrary{pgfplots.groupplots}
+\pgfplotsset{compat=1.10}
+\usepgfplotslibrary{external}
+\tikzexternalize
+
+\textwidth 160mm \textheight 247mm
+
+\pgfplotsset{width=\figurewidth,compat=1.10}
+\pgfplotsset{width=\figurewidth}
+\pgfplotsset{
+    tick label style={font=\tiny},
+    label style={font=\footnotesize},
+    legend style={font=\footnotesize},
+    title style={font=\footnotesize},
+}
+
+
+\newcommand{\szer}{16cm}
+\newcommand{\wys}{5.6cm}
+\newcommand{\odstepionowy}{1.2cm}
+
+\definecolor{kolor4}{rgb}{0,0,0.1724}
+\definecolor{kolor5}{rgb}{1.0000,0.1034,0.7241}
+\definecolor{kolor6}{rgb}{1.0000,0.8276,0}
+
+\begin{document}
+
+\tikzsetnextfilename{}
+
+\begin{figure}[tb]
+\tikzsetnextfilename{N=10,Nu=10,lmd=1}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=1 by 2,vertical sep=\odstepionowy},
+width=\szer,height=\wys]
+%%1
+\nextgroupplot
+[xmin=0,xmax=400,ymin=0,ymax=150,
+xlabel=$t$,ylabel={$T_{\mathrm{1}}, \ T_{\mathrm{1}}^{\mathrm{zad}}$, \ $T_{\mathrm{3}}$, \ $T_{\mathrm{3}}^{\mathrm{zad}}$},legend cell align=left,
+legend pos=south east]
+\addplot[const plot,color=blue,semithick] 
+file {../dane/OUT1N=10,Nu=10,lmd=1.txt};
+\addplot[const plot,color=blue,semithick ,densely dashed] 
+file {../dane/SET1N=10,Nu=10,lmd=1.txt}; 
+\addplot[const plot,color=red,semithick] 
+file {../dane/OUT2N=10,Nu=10,lmd=1.txt};
+\addplot[const plot,color=red,semithick ,densely dashed] 
+file {../dane/SET2N=10,Nu=10,lmd=1.txt}; 
+\legend{$T_{\mathrm{1}}$,$T_{\mathrm{1}}^{\mathrm{zad}}$, $T_{\mathrm{3}}$,$T_{\mathrm{3}}^{\mathrm{zad}}$} 
+%%2
+\nextgroupplot
+[xmin=0,xmax=400,ymin=0,ymax=100,
+xlabel=$t$,ylabel={$G_{\mathrm{1}}, \ G_{\mathrm{2}}$},
+legend pos = north east]
+\addplot[const plot,color=green,semithick] 
+file {../dane/IN1N=10,Nu=10,lmd=1.txt};
+\addplot[const plot,color=yellow,semithick] 
+file {../dane/IN2N=10,Nu=10,lmd=1.txt};
+\legend{$G_{\mathrm{1}}$, $G_{\mathrm{2}}$} 
+\end{groupplot}
+\end{tikzpicture}
+\end{figure}
+
+\end{document}
